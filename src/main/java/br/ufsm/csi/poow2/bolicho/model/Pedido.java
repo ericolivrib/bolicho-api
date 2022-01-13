@@ -17,15 +17,5 @@ public class Pedido {
     private LocalDate dataEntrega;
     private LocalDate dataFinalizado;
     private BigDecimal total;
-    private Status status;
-
-    private enum Status {
-        EM_ANDAMENTO("Em andamento"),
-        CANCELADO("Cancelado"),
-        FINALIZADO("Finalizado"),
-        ATRASADO("Atrasado");
-
-        Status(String status) {
-        }
-    }
+    private String status;
 }
