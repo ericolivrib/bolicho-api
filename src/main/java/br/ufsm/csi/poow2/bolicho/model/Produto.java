@@ -6,6 +6,7 @@ import java.math.BigDecimal;
 
 @Data
 public class Produto {
+
     private int id;
     private String descricao;
     private BigDecimal precoUnitario;

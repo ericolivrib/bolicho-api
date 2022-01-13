@@ -4,6 +4,7 @@ import lombok.Data;
 
 @Data
 public class Endereco {
+
     private int id;
     private String cep;
     private String bairro;
