@@ -1,8 +1,10 @@
 package br.ufsm.csi.poow2.bolicho.model;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
 
 @Data
+@AllArgsConstructor
 public class Cliente {
 
     private int id;
