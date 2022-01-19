@@ -11,11 +11,17 @@ public class ConexaoDBUtil {
     private static final String USER = "postgres";
     private static final String PASSWORD = "postgres";
 
-    public Connection getConnection() throws ClassNotFoundException, SQLException {
+    public Connection getConnection() {
 
-        Connection connection;
-        Class.forName(DRIVER);
-        connection = DriverManager.getConnection(URL, USER, PASSWORD);
+        Connection connection = null;
+
+        try {
+            Class.forName(DRIVER);
+            connection = DriverManager.getConnection(URL, USER, PASSWORD);
+        } catch (ClassNotFoundException | SQLException e) {
+            e.printStackTrace();
+        }
+
         return connection;
     }
 }
