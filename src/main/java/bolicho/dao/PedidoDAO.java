@@ -1,7 +1,6 @@
 package bolicho.dao;
 
-import bolicho.model.Pedido;
-import bolicho.ufsm.csi.poow2.bolicho.model.*;
+import bolicho.model.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
