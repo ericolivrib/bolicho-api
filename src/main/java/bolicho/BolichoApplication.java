@@ -1,4 +1,4 @@
-package br.ufsm.csi.poow2.bolicho;
+package bolicho;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

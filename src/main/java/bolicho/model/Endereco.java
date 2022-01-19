@@ -1,4 +1,4 @@
-package br.ufsm.csi.poow2.bolicho.model;
+package bolicho.model;
 
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
