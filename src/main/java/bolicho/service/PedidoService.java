@@ -24,65 +24,53 @@ public class PedidoService {
     }
 
     public List<Pedido> getPedidos() {
-        return this.pedidoDAO.getPedidos();
+        return this.pedidoDAO.recuperar();
     }
 
     public boolean cadastrarPedido(Pedido p) {
 
-        boolean itensForamAdicionados = true;
-
-        p.getEnderecoEntrega().setId(this.enderecoDAO.cadastrarEndereco(p.getEnderecoEntrega()));
+        p.getEnderecoEntrega().setId(this.enderecoDAO.incluir(p.getEnderecoEntrega()));
 
         if (p.getEnderecoEntrega().getId() != 0) {
-            p.setId(this.pedidoDAO.adicionarPedido(p));
+            p.setId(this.pedidoDAO.incluir(p));
+
             if (p.getId() != 0) {
                 for (Item i : p.getItens()) {
-                    this.itemDAO.adicionarItem(i, p.getId());
-
-                    if (!this.itemDAO.adicionarItem(i, p.getId())) {
-                        itensForamAdicionados = false;
-                        break;
+                    if (!this.itemDAO.incluir(i, p.getId())) {
+                        return false;
                     }
                 }
-
-                return itensForamAdicionados;
             } else {
                 return false;
             }
         } else {
             return false;
         }
+
+        return true;
     }
 
-    public boolean deletarPedido(Pedido p) {
+    public boolean deletarPedido(Pedido pedido) {
 
-        boolean itensForamRemovidos = true;
+        boolean isDeletado = false;
 
-        for (Item i : p.getItens()) {
-            if (!this.itemDAO.removerItem(i.getId())) {
-                itensForamRemovidos = false;
-                break;
-            }
-        }
-
-        if (itensForamRemovidos) {
-            if (this.pedidoDAO.deletarPedido(p.getId())) {
-                if (this.enderecoDAO.deletarEndereco(p.getEnderecoEntrega().getId())) {
-                    return true;
+        if (this.itemDAO.deletarPorIdPedido(pedido.getId())) {
+            if (this.pedidoDAO.deletar(pedido.getId())) {
+                if (this.enderecoDAO.deletar(pedido.getEnderecoEntrega().getId())) {
+                    isDeletado = true;
                 }
             }
         }
 
-        return false;
+        return isDeletado;
     }
 
     public boolean alterarStatusPedido(int idPedido, String novoStatus, LocalDate dataFinalizado) {
-
         Pedido p = new Pedido();
         p.setId(idPedido);
         p.setStatus(novoStatus);
         p.setDataFinalizado(dataFinalizado);
 
-        return this.pedidoDAO.atualizarStatusPedido(p);
+        return this.pedidoDAO.atualizarStatus(p);
     }
 }
