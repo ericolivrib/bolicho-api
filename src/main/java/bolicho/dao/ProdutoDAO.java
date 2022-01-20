@@ -1,67 +1,155 @@
 package bolicho.dao;
 
-import java.math.BigDecimal;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
 import bolicho.model.Produto;
+import bolicho.util.ConexaoDBUtil;
 
 public class ProdutoDAO {
 
-    private final List<Produto> produtos = new ArrayList<>();
+    public List<Produto> recuperar() {
 
-    public ProdutoDAO() {
-        produtos.add(new Produto(1, "Queijo Colonial", BigDecimal.valueOf(27.00), "Kg", 10));
-        produtos.add(new Produto(2, "Chimia", BigDecimal.valueOf(3.50), "Unidade", 11));
-        produtos.add(new Produto(3, "Licor", BigDecimal.valueOf(6.00), "Unidade", 10));
-    }
+        List<Produto> produtos = new ArrayList<>();
 
-    public List<Produto> getProdutos() {
-        return this.produtos;
-    }
+        try (Connection connection = ConexaoDBUtil.getConnection()) {
 
-    public Produto getProdutoById(int idProduto) {
+            String sql = "SELECT * FROM produto";
+            Statement statement = connection.createStatement();
+            ResultSet resultSet = statement.executeQuery(sql);
 
-        for (Produto p : this.produtos) {
-            if (idProduto == p.getId()) {
-                return p;
+            while (resultSet.next()) {
+                Produto produto = new Produto(
+                        resultSet.getInt("id"),
+                        resultSet.getString("descricao"),
+                        resultSet.getBigDecimal("preco_unitario"),
+                        resultSet.getString("unidade_medida"),
+                        resultSet.getInt("qtd_estoque"),
+                        resultSet.getBoolean("arquivado")
+                );
+
+                produtos.add(produto);
             }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
 
-        return null;
+        return produtos;
     }
 
-    public boolean adicionarProduto(Produto p) {
-        p.setId(this.produtos.size() + 1);
-        return this.produtos.add(p);
-    }
+    public Produto recuperarPorId(int id) {
 
-    public boolean atualizarProduto(Produto p) {
+        Produto produto = new Produto();
 
-        for (Produto produto : this.produtos) {
-            if (p.getId() == produto.getId()) {
-                this.produtos.set(this.produtos.indexOf(produto), p);
-                return true;
+        try (Connection connection = ConexaoDBUtil.getConnection()) {
+
+            String sql = "SELECT * FROM produto WHERE id=?";
+
+            PreparedStatement preparedStatement = connection.prepareStatement(sql);
+
+            preparedStatement.setInt(1, id);
+
+            ResultSet resultSet = preparedStatement.executeQuery();
+
+            if (resultSet.next()) {
+                produto = new Produto(
+                        resultSet.getInt("id"),
+                        resultSet.getString("descricao"),
+                        resultSet.getBigDecimal("preco_unitario"),
+                        resultSet.getString("unidade_medida"),
+                        resultSet.getInt("qtd_estoque"),
+                        resultSet.getBoolean("arquivado")
+                );
             }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
 
-        return false;
+        return produto;
     }
 
-    public boolean atualizarEstoqueProduto(Produto p) {
+    public boolean inserir(Produto produto) {
 
-        for (Produto produto : this.produtos) {
-            if (p.getId() == produto.getId()) {
-                produto.setQtdEstoque(p.getQtdEstoque() + produto.getQtdEstoque());
-                this.produtos.set(this.produtos.indexOf(produto), produto);
-                return true;
-            }
+        try (Connection connection = ConexaoDBUtil.getConnection()) {
+
+            String sql = "INSERT INTO produto (descricao, preco_unitario, unidade_medida, arquivado) " +
+                    "VALUES (?, ?, ?, false)";
+
+            PreparedStatement preparedStatement = connection.prepareStatement(sql);
+
+            preparedStatement.setString(1, produto.getDescricao());
+            preparedStatement.setBigDecimal(2, produto.getPrecoUnitario());
+            preparedStatement.setString(3, produto.getUnidadeMedida());
+
+            preparedStatement.executeUpdate();
+            return true;
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
         }
-
-        return false;
     }
 
-    public boolean deletarProduto(int idProduto) {
-        return this.produtos.removeIf(p -> idProduto == p.getId());
+    public boolean atualizar(Produto produto) {
+
+        try (Connection connection = ConexaoDBUtil.getConnection()) {
+
+            String sql = "UPDATE produto SET descricao=?, preco_unitario=?, unidade_medida=? WHERE id=?";
+
+            PreparedStatement preparedStatement = connection.prepareStatement(sql);
+
+            preparedStatement.setString(1, produto.getDescricao());
+            preparedStatement.setBigDecimal(2, produto.getPrecoUnitario());
+            preparedStatement.setString(3, produto.getUnidadeMedida());
+            preparedStatement.setInt(4, produto.getId());
+
+            preparedStatement.executeUpdate();
+            return true;
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    public boolean atualizarEstoque(Produto produto) {
+
+        try (Connection connection = ConexaoDBUtil.getConnection()) {
+
+            String sql = "UPDATE produto SET qtd_estoque=? WHERE id=?";
+
+            PreparedStatement preparedStatement = connection.prepareStatement(sql);
+
+            preparedStatement.setInt(1, produto.getQtdEstoque());
+            preparedStatement.setInt(2, produto.getId());
+
+            preparedStatement.executeUpdate();
+            return true;
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    public boolean arquivar(int id) {
+
+        try (Connection connection = ConexaoDBUtil.getConnection()) {
+
+            String sql = "UPDATE produto SET arquivado=true WHERE id=?";
+
+            PreparedStatement preparedStatement = connection.prepareStatement(sql);
+            preparedStatement.setInt(1, id);
+            preparedStatement.executeUpdate();
+
+            return true;
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
     }
 }
