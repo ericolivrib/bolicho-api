@@ -11,7 +11,7 @@ public class ConexaoDBUtil {
     private static final String USER = "postgres";
     private static final String PASSWORD = "postgres";
 
-    public Connection getConnection() {
+    public static Connection getConnection() {
 
         Connection connection = null;
 
