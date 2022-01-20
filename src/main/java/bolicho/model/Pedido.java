@@ -14,7 +14,6 @@ import java.util.List;
 public class Pedido {
 
     private int id;
-    private String numPedido;
     private Cliente cliente;
     private List<Item> itens;
     private Endereco enderecoEntrega;
