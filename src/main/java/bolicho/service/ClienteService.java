@@ -16,18 +16,18 @@ public class ClienteService {
     }
 
     public List<Cliente> getClientes() {
-        return this.clienteDAO.getClientes();
+        return this.clienteDAO.recuperar();
     }
 
     public boolean cadastrarCliente(Cliente c) {
-        return this.clienteDAO.adicionarCliente(c);
+        return this.clienteDAO.incluir(c);
     }
 
     public boolean atualizarCliente(Cliente c) {
-        return this.clienteDAO.atualizarCliente(c);
+        return this.clienteDAO.atualizar(c);
     }
 
     public boolean deletarCliente(int id) {
-        return this.clienteDAO.deletarCliente(id);
+        return this.clienteDAO.desativar(id);
     }
 }
