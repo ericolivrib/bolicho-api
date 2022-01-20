@@ -58,7 +58,7 @@ public class PedidoDAO {
                     PreparedStatement.RETURN_GENERATED_KEYS);
 
             statement.setInt(1, pedido.getCliente().getId());
-            statement.setInt(2, pedido.getEnderecoEntrega().getId());
+            statement.setInt(2, pedido.getLocalEntrega().getId());
             statement.setDate(3, Date.valueOf(pedido.getDataPedido()));
             statement.setDate(4, Date.valueOf(pedido.getDataEntrega()));
             statement.setBigDecimal(5, pedido.getTotal());
@@ -98,7 +98,7 @@ public class PedidoDAO {
 
         try (Connection connection = ConexaoDBUtil.getConnection()) {
 
-            if (pedido.getDataFinalizado() != null && pedido.getStatus().equals("Finalizado")) {
+            if (pedido.getStatus().equals("Finalizado")) {
                 String sql = "UPDATE pedido SET status=?, data_finalizado=? WHERE id=?";
                 PreparedStatement statement = connection.prepareStatement(sql);
 

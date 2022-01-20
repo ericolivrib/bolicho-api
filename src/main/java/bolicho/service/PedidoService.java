@@ -29,9 +29,9 @@ public class PedidoService {
 
     public boolean cadastrarPedido(Pedido p) {
 
-        p.getEnderecoEntrega().setId(this.enderecoDAO.incluir(p.getEnderecoEntrega()));
+        p.getLocalEntrega().setId(this.enderecoDAO.incluir(p.getLocalEntrega()));
 
-        if (p.getEnderecoEntrega().getId() != 0) {
+        if (p.getLocalEntrega().getId() != 0) {
             p.setId(this.pedidoDAO.incluir(p));
 
             if (p.getId() != 0) {
@@ -56,7 +56,7 @@ public class PedidoService {
 
         if (this.itemDAO.deletarPorIdPedido(pedido.getId())) {
             if (this.pedidoDAO.deletar(pedido.getId())) {
-                if (this.enderecoDAO.deletar(pedido.getEnderecoEntrega().getId())) {
+                if (this.enderecoDAO.deletar(pedido.getLocalEntrega().getId())) {
                     isDeletado = true;
                 }
             }
