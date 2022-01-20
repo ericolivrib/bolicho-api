@@ -16,7 +16,7 @@ public class Pedido {
     private int id;
     private Cliente cliente;
     private List<Item> itens;
-    private Endereco enderecoEntrega;
+    private Endereco localEntrega;
     private LocalDate dataPedido;
     private LocalDate dataEntrega;
     private LocalDate dataFinalizado;
