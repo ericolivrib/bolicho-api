@@ -16,15 +16,15 @@ public class ProdutoService {
     }
 
     public List<Produto> getProdutos() {
-        return this.produtoDAO.getProdutos();
+        return this.produtoDAO.recuperar();
     }
 
     public boolean cadastrarProduto(Produto p) {
-        return this.produtoDAO.adicionarProduto(p);
+        return this.produtoDAO.incluir(p);
     }
 
     public boolean atualizarProduto(Produto p) {
-        return this.produtoDAO.atualizarProduto(p);
+        return this.produtoDAO.atualizar(p);
     }
 
     public boolean atualizarEstoqueProduto(int id, int qtd) {
@@ -32,10 +32,10 @@ public class ProdutoService {
         p.setId(id);
         p.setQtdEstoque(qtd);
 
-        return this.produtoDAO.atualizarEstoqueProduto(p);
+        return this.produtoDAO.atualizarEstoque(p);
     }
 
     public boolean deletarProduto(int id) {
-        return this.produtoDAO.deletarProduto(id);
+        return this.produtoDAO.arquivar(id);
     }
 }
