@@ -1,46 +1,124 @@
 package bolicho.dao;
 
 import bolicho.model.Item;
+import bolicho.util.ConexaoDBUtil;
 
-import java.math.BigDecimal;
-import java.time.LocalDate;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
 public class ItemDAO {
 
-    private final List<Item> itens = new ArrayList<>();
+    public List<Item> recuperarPorIdPedido(int idPedido) {
 
-    public ItemDAO() {
-        this.itens.add(new Item(
-                1,
-                new ProdutoDAO().getProdutoById(1),
-                2,
-                BigDecimal.valueOf(52.00),
-                LocalDate.of(2022, 7, 20)));
-    }
+        List<Item> itens = new ArrayList<>();
 
-    public List<Item> getItens() {
-        return this.itens;
-    }
+        try (Connection connection = ConexaoDBUtil.getConnection()) {
 
-    public Item getItemById(int idItem) {
+            String sql = "SELECT * FROM item WHERE pedido_id=?";
+            PreparedStatement statement = connection.prepareStatement(sql);
+            statement.setInt(1, idPedido);
+            ResultSet result = statement.executeQuery();
 
-        for (Item i : this.itens) {
-            if (idItem == i.getId()) {
-                return i;
+            while (result.next()) {
+                Item i = new Item(
+                        result.getInt("id"),
+                        new ProdutoDAO().recuperarPeloId(result.getInt("produto_id")),
+                        result.getInt("quantidade"),
+                        result.getBigDecimal("subtotal"),
+                        result.getDate("data_validade").toLocalDate()
+                );
+
+                itens.add(i);
             }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return itens;
+    }
+
+    public Item recuperarPeloId(int id) {
+
+        try (Connection connection = ConexaoDBUtil.getConnection()) {
+
+            String sql = "SELECT * FROM item WHERE id=?";
+            PreparedStatement statement = connection.prepareStatement(sql);
+            ResultSet result = statement.executeQuery();
+
+            if (result.next()) {
+                return new Item(
+                        result.getInt("id"),
+                        new ProdutoDAO().recuperarPeloId(result.getInt("produto_id")),
+                        result.getInt("quantidade"),
+                        result.getBigDecimal("subtotal"),
+                        result.getDate("data_validade").toLocalDate()
+                );
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
 
         return null;
     }
 
-    public boolean adicionarItem(Item item, int idPedido) {
-        item.setId(this.itens.size() + 1);
-        return this.itens.add(item);
+    public boolean incluir(Item item, int idPedido) {
+
+        try (Connection connection = ConexaoDBUtil.getConnection()) {
+
+            String sql = "INSERT INTO item (produto_id, pedido_id, subtotal, quantidade, data_validade) " +
+                    "VALUES (?, ?, ?, ?, ?)";
+
+            PreparedStatement statement = connection.prepareStatement(sql);
+
+            statement.setInt(1, item.getProduto().getId());
+            statement.setInt(2, idPedido);
+            statement.setBigDecimal(3, item.getSubtotal());
+            statement.setInt(4, item.getQuantidade());
+            statement.setDate(5, Date.valueOf(item.getDataValidade()));
+
+            return statement.execute();
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+
     }
 
-    public boolean removerItem(int idItem) {
-        return this.itens.removeIf(i -> idItem == i.getId());
+    public boolean deletar(int id) {
+
+        try (Connection connection = ConexaoDBUtil.getConnection()) {
+
+            String sql = "DELETE FROM item WHERE id=?";
+            PreparedStatement statement = connection.prepareStatement(sql);
+            statement.setInt(1, id);
+
+            return statement.execute();
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return false;
+    }
+
+    public boolean deletarPorIdPedido(int idPedido) {
+
+        try (Connection connection = ConexaoDBUtil.getConnection()) {
+
+            String sql = "DELETE FROM item WHERE pedido_id=?";
+            PreparedStatement statement = connection.prepareStatement(sql);
+            statement.setInt(1, idPedido);
+
+            return statement.execute();
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return false;
     }
 }

@@ -1,47 +1,87 @@
 package bolicho.dao;
 
 import bolicho.model.Endereco;
+import bolicho.util.ConexaoDBUtil;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.sql.*;
 
 public class EnderecoDAO {
 
-    private final List<Endereco> enderecos = new ArrayList<>();
+    public Endereco recuperarPeloId(int id) {
 
-    public EnderecoDAO() {
-        this.enderecos.add(new Endereco(
-                1,
-                "99999-999",
-                "Bairro",
-                "Logradouro",
-                99,
-                "Complemento",
-                "Ponto de referência"));
-    }
+        try (Connection connection = ConexaoDBUtil.getConnection()) {
 
-    public List<Endereco> getEnderecos() {
-        return this.enderecos;
-    }
+            String sql = "SELECT * FROM endereco WHERE id=?";
+            PreparedStatement statement = connection.prepareStatement(sql);
+            statement.setInt(1, id);
 
-    public Endereco getEnderecoByID(int idEndereco) {
+            ResultSet result = statement.executeQuery();
 
-        for (Endereco e : this.enderecos) {
-            if (idEndereco == e.getId()) {
-                return e;
+            if (result.next()) {
+                return new Endereco(
+                        result.getInt("id"),
+                        result.getString("cep"),
+                        result.getString("bairro"),
+                        result.getString("logradouro"),
+                        result.getInt("numero"),
+                        result.getString("complemento"),
+                        result.getString("ponto_referencia")
+                );
             }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
 
         return null;
     }
 
-    public int cadastrarEndereco(Endereco e) {
-        e.setId(this.enderecos.size() + 1);
-        this.enderecos.add(e);
-        return e.getId();
+    public int incluir(Endereco endereco) {
+
+        try (Connection connection = ConexaoDBUtil.getConnection()) {
+
+            String sql = "INSERT INTO endereco (cep, bairro, logradouro, numero, complemento, ponto_referencia) " +
+                    "VALUES (?, ?, ?, ?, ?, ?)";
+
+            PreparedStatement statement = connection.prepareStatement(sql,
+                    PreparedStatement.RETURN_GENERATED_KEYS);
+
+            statement.setString(1, endereco.getCep());
+            statement.setString(2, endereco.getBairro());
+            statement.setString(3, endereco.getLogradouro());
+            statement.setInt(4, endereco.getNumero());
+            statement.setString(5, endereco.getComplemento());
+            statement.setString(6, endereco.getPontoReferencia());
+
+            statement.executeUpdate();
+            ResultSet result  = statement.getGeneratedKeys();
+            result.next();
+
+            if (result.getInt(1) > 0) {
+                return result.getInt(1);
+            }
+
+        } catch (SQLException exception) {
+            exception.printStackTrace();
+        }
+
+        return 0;
     }
 
-    public boolean deletarEndereco(int idEndereco) {
-        return this.enderecos.removeIf(p -> idEndereco == p.getId());
+    public boolean deletar(int id) {
+
+        try (Connection connection = ConexaoDBUtil.getConnection()) {
+
+            String sql = "DELETE FROM endereco WHERE id=?";
+            PreparedStatement statement = connection.prepareStatement(sql);
+            statement.setInt(1, id);
+
+            statement.executeUpdate();
+            return true;
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
     }
 }

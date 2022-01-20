@@ -1,80 +1,127 @@
 package bolicho.dao;
 
 import bolicho.model.*;
+import bolicho.util.ConexaoDBUtil;
 
-import java.math.BigDecimal;
-import java.time.LocalDate;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
 public class PedidoDAO {
 
-    private final List<Pedido> pedidos = new ArrayList<>();
+    public List<Pedido> recuperar() {
 
-    public PedidoDAO() {
+        List<Pedido> pedidos = new ArrayList<>();
 
-        pedidos.add(new Pedido(
-                1,
-                "0001",
-                new ClienteDAO().getClienteById(1),
-                new ItemDAO().getItens(),
-                new EnderecoDAO().getEnderecoByID(1),
-                LocalDate.of(2022, 1, 16),
-                LocalDate.of(2022, 1, 16),
-                null,
-                BigDecimal.valueOf(27.00),
-                "Em andamento"
-        ));
-    }
+        try (Connection connection = ConexaoDBUtil.getConnection()) {
 
-    public List<Pedido> getPedidos() {
-        return this.pedidos;
-    }
+            String sql = "SELECT * FROM pedido;";
 
-    public Pedido getPedidoById(int idPedido) {
+            Statement statement = connection.createStatement();
+            ResultSet result = statement.executeQuery(sql);
 
-        for (Pedido p : this.pedidos) {
-            if (idPedido == p.getId()) {
-                return p;
+            while (result.next()) {
+                Pedido p = new Pedido(
+                        result.getInt("id"),
+                        new ClienteDAO().recuperarPeloId(result.getInt("cliente_id")),
+                        new ItemDAO().recuperarPorIdPedido(result.getInt("id")),
+                        new EnderecoDAO().recuperarPeloId(result.getInt("endereco_id")),
+                        result.getDate("data_pedido").toLocalDate(),
+                        result.getDate("data_entrega").toLocalDate(),
+                        result.getDate("data_finalizado").toLocalDate(),
+                        result.getBigDecimal("total"),
+                        result.getString("status")
+                );
+
+                pedidos.add(p);
             }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
 
+        return pedidos;
+    }
+
+    public Pedido recuperarPeloId(int id) {
         return null;
     }
 
-    public int adicionarPedido(Pedido p) {
-        p.setId(this.pedidos.size() + 1);
-        this.pedidos.add(p);
-        return p.getId();
-    }
+    public int incluir(Pedido pedido) {
 
-    public boolean deletarPedido(int idPedido) {
+        try (Connection connection = ConexaoDBUtil.getConnection()) {
 
-        for (Pedido p : this.pedidos) {
-            if (idPedido == p.getId()) {
-                this.pedidos.remove(p);
-                return true;
+            String sql = "INSERT INTO pedido (cliente_id, endereco_id, data_pedido, data_entrega, total, status) " +
+                    "VALUES (?, ?, ?, ?, ?, 'Em andamento')";
+
+            PreparedStatement statement = connection.prepareStatement(sql,
+                    PreparedStatement.RETURN_GENERATED_KEYS);
+
+            statement.setInt(1, pedido.getCliente().getId());
+            statement.setInt(2, pedido.getEnderecoEntrega().getId());
+            statement.setDate(3, Date.valueOf(pedido.getDataPedido()));
+            statement.setDate(4, Date.valueOf(pedido.getDataEntrega()));
+            statement.setBigDecimal(5, pedido.getTotal());
+
+            statement.executeUpdate();
+            ResultSet result = statement.getGeneratedKeys();
+            result.next();
+
+            if (result.getInt(1) > 0) {
+                return result.getInt(1);
             }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
 
-        return false;
+        return 0;
     }
 
-    public boolean atualizarStatusPedido(Pedido p) {
+    public boolean deletar(int id) {
 
-        for (Pedido pedido : this.pedidos) {
-            if (p.getId() == pedido.getId()) {
-                pedido.setStatus(p.getStatus());
+        try (Connection connection = ConexaoDBUtil.getConnection()) {
 
-                if (p.getStatus().equals("Finalizado")) {
-                    pedido.setDataFinalizado(p.getDataFinalizado());
-                }
+            String sql = "DELETE FROM pedido WHERE id=?";
+            PreparedStatement statement = connection.prepareStatement(sql);
+            statement.setInt(1, id);
 
-                this.pedidos.set(this.pedidos.indexOf(pedido), pedido);
-                return true;
+            return statement.execute();
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    public boolean atualizarStatus(Pedido pedido) {
+
+        try (Connection connection = ConexaoDBUtil.getConnection()) {
+
+            if (pedido.getDataFinalizado() != null && pedido.getStatus().equals("Finalizado")) {
+                String sql = "UPDATE pedido SET status=?, data_finalizado=? WHERE id=?";
+                PreparedStatement statement = connection.prepareStatement(sql);
+
+                statement.setString(1, pedido.getStatus());
+                statement.setDate(2, Date.valueOf(pedido.getDataFinalizado()));
+                statement.setInt(3, pedido.getId());
+                statement.executeUpdate();
+            } else {
+                String sql = "UPDATE pedido SET status=? WHERE id=?";
+                PreparedStatement statement = connection.prepareStatement(sql);
+
+                statement.setString(1, pedido.getStatus());
+                statement.setInt(2, pedido.getId());
+                statement.executeUpdate();
             }
+
+            return true;
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
         }
 
-        return false;
     }
+
 }

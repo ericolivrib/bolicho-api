@@ -1,55 +1,131 @@
 package bolicho.dao;
 
 import bolicho.model.Cliente;
+import bolicho.util.ConexaoDBUtil;
 
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
 public class ClienteDAO {
 
-    private final List<Cliente> clientes = new ArrayList<>();
+    public List<Cliente> recuperar() {
 
-    public ClienteDAO() {
-        clientes.add(new Cliente(1, "Fulano", "fulano@email", "(99) 99999-9999", "999.999.999-99", true));
-        clientes.add(new Cliente(2, "Beltrano", "beltrano@email", "(88) 88888-8888", "888.888.888-88", true));
-        clientes.add(new Cliente(3, "Ciclano", "ciclano@email", "(77) 77777-7777", "777.777.777-77", true));
-    }
+        List<Cliente> clientes = new ArrayList<>();
 
-    public List<Cliente> getClientes() {
-        return this.clientes;
-    }
+        try (Connection connection = ConexaoDBUtil.getConnection()) {
 
-    public Cliente getClienteById(int idCliente) {
+            String sql = "SELECT * FROM cliente";
+            Statement statement = connection.createStatement();
+            ResultSet result = statement.executeQuery(sql);
 
-        for (Cliente c : this.clientes) {
-            if (idCliente == c.getId()) {
-                return c;
+            while (result.next()) {
+                Cliente c = new Cliente(
+                        result.getInt("id"),
+                        result.getString("nome"),
+                        result.getString("email"),
+                        result.getString("telefone"),
+                        result.getString("cpf"),
+                        result.getBoolean("ativo")
+                );
+
+                clientes.add(c);
             }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return clientes;
+    }
+
+    public Cliente recuperarPeloId(int id) {
+
+        try (Connection connection = ConexaoDBUtil.getConnection()) {
+
+            String sql = "SELECT * FROM cliente WHERE id=?";
+
+            PreparedStatement statement = connection.prepareStatement(sql);
+            statement.setInt(1, id);
+            ResultSet result = statement.executeQuery();
+
+            if (result.next()) {
+                return new Cliente(
+                        result.getInt("id"),
+                        result.getString("nome"),
+                        result.getString("email"),
+                        result.getString("telefone"),
+                        result.getString("cpf"),
+                        result.getBoolean("ativo")
+                );
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
 
         return null;
     }
 
-    public boolean adicionarCliente(Cliente c) {
-        c.setId(this.clientes.size() + 1);
-        c.setAtivo(true);
-        return this.clientes.add(c);
-    }
+    public boolean incluir(Cliente cliente) {
 
-    public boolean atualizarCliente(Cliente c) {
+        try (Connection connection = ConexaoDBUtil.getConnection()) {
 
-        for (Cliente cliente : this.clientes) {
-            if (c.getId() == cliente.getId()) {
-                this.clientes.set(this.clientes.indexOf(cliente), c);
-                return true;
-            }
+            String sql = "INSERT INTO cliente (nome, email, telefone, cpf, ativo) " +
+                    "VALUES (?, ?, ?, ?, true)";
+
+            PreparedStatement statement = connection.prepareStatement(sql);
+
+            statement.setString(1, cliente.getNome());
+            statement.setString(2, cliente.getEmail());
+            statement.setString(3, cliente.getTelefone());
+            statement.setString(4, cliente.getCpf());
+
+            statement.executeUpdate();
+            return true;
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
         }
 
-        return false;
     }
 
-    public boolean deletarCliente(int idCliente) {
+    public boolean atualizar(Cliente cliente) {
 
-        return this.clientes.removeIf(c -> idCliente == c.getId());
+        try (Connection connection = ConexaoDBUtil.getConnection()) {
+
+            String sql = "UPDATE cliente SET nome=?, email=?, telefone=?, cpf=? WHERE id=?";
+
+            PreparedStatement statement = connection.prepareStatement(sql);
+
+            statement.setString(1, cliente.getNome());
+            statement.setString(2, cliente.getEmail());
+            statement.setString(3, cliente.getTelefone());
+            statement.setString(4, cliente.getCpf());
+            statement.setInt(5, cliente.getId());
+
+//            statement.executeUpdate();
+            return statement.execute();
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    public boolean desativar(int id) {
+
+        try (Connection connection = ConexaoDBUtil.getConnection()) {
+
+            String sql = "UPDATE cliente SET ativo=false WHERE id=?";
+            PreparedStatement statement = connection.prepareStatement(sql);
+            statement.setInt(1, id);
+
+            return statement.execute();
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
     }
 }

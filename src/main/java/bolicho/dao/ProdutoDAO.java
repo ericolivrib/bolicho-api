@@ -17,16 +17,16 @@ public class ProdutoDAO {
 
             String sql = "SELECT * FROM produto";
             Statement statement = connection.createStatement();
-            ResultSet resultSet = statement.executeQuery(sql);
+            ResultSet result = statement.executeQuery(sql);
 
-            while (resultSet.next()) {
+            while (result.next()) {
                 Produto produto = new Produto(
-                        resultSet.getInt("id"),
-                        resultSet.getString("descricao"),
-                        resultSet.getBigDecimal("preco_unitario"),
-                        resultSet.getString("unidade_medida"),
-                        resultSet.getInt("qtd_estoque"),
-                        resultSet.getBoolean("arquivado")
+                        result.getInt("id"),
+                        result.getString("descricao"),
+                        result.getBigDecimal("preco_unitario"),
+                        result.getString("unidade_medida"),
+                        result.getInt("qtd_estoque"),
+                        result.getBoolean("arquivado")
                 );
 
                 produtos.add(produto);
@@ -39,7 +39,7 @@ public class ProdutoDAO {
         return produtos;
     }
 
-    public Produto recuperarPorId(int id) {
+    public Produto recuperarPeloId(int id) {
 
         Produto produto = new Produto();
 
@@ -47,20 +47,20 @@ public class ProdutoDAO {
 
             String sql = "SELECT * FROM produto WHERE id=?";
 
-            PreparedStatement preparedStatement = connection.prepareStatement(sql);
+            PreparedStatement statement = connection.prepareStatement(sql);
 
-            preparedStatement.setInt(1, id);
+            statement.setInt(1, id);
 
-            ResultSet resultSet = preparedStatement.executeQuery();
+            ResultSet result = statement.executeQuery();
 
-            if (resultSet.next()) {
+            if (result.next()) {
                 produto = new Produto(
-                        resultSet.getInt("id"),
-                        resultSet.getString("descricao"),
-                        resultSet.getBigDecimal("preco_unitario"),
-                        resultSet.getString("unidade_medida"),
-                        resultSet.getInt("qtd_estoque"),
-                        resultSet.getBoolean("arquivado")
+                        result.getInt("id"),
+                        result.getString("descricao"),
+                        result.getBigDecimal("preco_unitario"),
+                        result.getString("unidade_medida"),
+                        result.getInt("qtd_estoque"),
+                        result.getBoolean("arquivado")
                 );
             }
 
@@ -71,20 +71,20 @@ public class ProdutoDAO {
         return produto;
     }
 
-    public boolean inserir(Produto produto) {
+    public boolean incluir(Produto produto) {
 
         try (Connection connection = ConexaoDBUtil.getConnection()) {
 
             String sql = "INSERT INTO produto (descricao, preco_unitario, unidade_medida, arquivado) " +
                     "VALUES (?, ?, ?, false)";
 
-            PreparedStatement preparedStatement = connection.prepareStatement(sql);
+            PreparedStatement statement = connection.prepareStatement(sql);
 
-            preparedStatement.setString(1, produto.getDescricao());
-            preparedStatement.setBigDecimal(2, produto.getPrecoUnitario());
-            preparedStatement.setString(3, produto.getUnidadeMedida());
+            statement.setString(1, produto.getDescricao());
+            statement.setBigDecimal(2, produto.getPrecoUnitario());
+            statement.setString(3, produto.getUnidadeMedida());
 
-            preparedStatement.executeUpdate();
+            statement.executeUpdate();
             return true;
 
         } catch (SQLException e) {
@@ -99,14 +99,14 @@ public class ProdutoDAO {
 
             String sql = "UPDATE produto SET descricao=?, preco_unitario=?, unidade_medida=? WHERE id=?";
 
-            PreparedStatement preparedStatement = connection.prepareStatement(sql);
+            PreparedStatement statement = connection.prepareStatement(sql);
 
-            preparedStatement.setString(1, produto.getDescricao());
-            preparedStatement.setBigDecimal(2, produto.getPrecoUnitario());
-            preparedStatement.setString(3, produto.getUnidadeMedida());
-            preparedStatement.setInt(4, produto.getId());
+            statement.setString(1, produto.getDescricao());
+            statement.setBigDecimal(2, produto.getPrecoUnitario());
+            statement.setString(3, produto.getUnidadeMedida());
+            statement.setInt(4, produto.getId());
 
-            preparedStatement.executeUpdate();
+            statement.executeUpdate();
             return true;
 
         } catch (SQLException e) {
@@ -121,12 +121,12 @@ public class ProdutoDAO {
 
             String sql = "UPDATE produto SET qtd_estoque=? WHERE id=?";
 
-            PreparedStatement preparedStatement = connection.prepareStatement(sql);
+            PreparedStatement statement = connection.prepareStatement(sql);
 
-            preparedStatement.setInt(1, produto.getQtdEstoque());
-            preparedStatement.setInt(2, produto.getId());
+            statement.setInt(1, produto.getQtdEstoque());
+            statement.setInt(2, produto.getId());
 
-            preparedStatement.executeUpdate();
+            statement.executeUpdate();
             return true;
 
         } catch (SQLException e) {
@@ -141,9 +141,9 @@ public class ProdutoDAO {
 
             String sql = "UPDATE produto SET arquivado=true WHERE id=?";
 
-            PreparedStatement preparedStatement = connection.prepareStatement(sql);
-            preparedStatement.setInt(1, id);
-            preparedStatement.executeUpdate();
+            PreparedStatement statement = connection.prepareStatement(sql);
+            statement.setInt(1, id);
+            statement.executeUpdate();
 
             return true;
 
