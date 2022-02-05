@@ -1,5 +1,6 @@
 package bolicho.controller;
 
+import bolicho.model.Status;
 import bolicho.service.PedidoService;
 import bolicho.model.Pedido;
 
@@ -14,46 +15,28 @@ import java.util.List;
 @RequestMapping("pedidos")
 public class PedidoController {
 
-    private final PedidoService pedidoService;
+    private final PedidoService service = new PedidoService();
 
-    public PedidoController() {
-        this.pedidoService = new PedidoService();
-    }
-
-    @GetMapping("/")
+    @GetMapping
     public List<Pedido> getPedidos() {
-        return this.pedidoService.getPedidos();
+        return this.service.buscar();
     }
 
     @PostMapping("/cadastrar")
-    public ResponseEntity<Object> cadastrarPedido(@RequestBody Pedido p) {
-
-        if (this.pedidoService.cadastrarPedido(p)) {
-            return new ResponseEntity<>(p, HttpStatus.OK);
-        } else {
-            return new ResponseEntity<>("Falha ao cadastrar pedido", HttpStatus.BAD_REQUEST);
-        }
+    @ResponseStatus(HttpStatus.CREATED)
+    public Pedido cadastrarPedido(@RequestBody Pedido pedido) {
+        return this.service.incluir(pedido);
     }
 
-    @DeleteMapping("/{idPedido}/deletar")
-    public ResponseEntity<Object> deletarPedido(@RequestBody Pedido p) {
-
-        if (this.pedidoService.deletarPedido(p)) {
-            return new ResponseEntity<>(p, HttpStatus.OK);
-        } else {
-            return new ResponseEntity<>("Falha ao deletar pedido!", HttpStatus.BAD_REQUEST);
-        }
+    @DeleteMapping("/{id}/deletar")
+    public ResponseEntity<?> deletarPedido(@RequestParam int id) {
+        return this.service.deletar(id);
     }
 
-    @PutMapping("/{idPedido}/alterar-status")
-    public ResponseEntity<Object> alterarStatus(@PathVariable int idPedido,
-                                                @RequestParam String novoStatus,
+    @PutMapping("/{id}/alterar-status")
+    public ResponseEntity<Pedido> alterarStatus(@PathVariable int id,
+                                                @RequestParam String status,
                                                 @RequestParam String dataFinalizado) {
-
-        if (this.pedidoService.alterarStatusPedido(idPedido, novoStatus, LocalDate.parse(dataFinalizado))) {
-            return new ResponseEntity<>("Status do pedido atualizado!", HttpStatus.OK);
-        } else {
-            return new ResponseEntity<>("Falha ao atualizar o status do pedido!", HttpStatus.BAD_REQUEST);
-        }
+        return this.service.alterarStatus(id, Status.valueOf(status), LocalDate.parse(dataFinalizado));
     }
 }

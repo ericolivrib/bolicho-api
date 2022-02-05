@@ -13,55 +13,33 @@ import java.util.List;
 @RequestMapping("produtos")
 public class ProdutoController {
 
-    private final ProdutoService produtoService;
+    private final ProdutoService service = new ProdutoService();;
 
-    public ProdutoController() {
-        this.produtoService = new ProdutoService();
-    }
-
-    @GetMapping("/")
+    @GetMapping
     public List<Produto> getProdutos() {
-        return this.produtoService.getProdutos();
+        return this.service.buscar();
     }
 
     @PostMapping("/cadastrar")
-    public ResponseEntity<Object> cadastrarProduto(@RequestBody Produto p) {
-
-        if (this.produtoService.cadastrarProduto(p)) {
-            return new ResponseEntity<>(p, HttpStatus.OK);
-        } else {
-            return new ResponseEntity<>("Falha ao cadastrar produto", HttpStatus.BAD_REQUEST);
-        }
+    @ResponseStatus(HttpStatus.CREATED)
+    public Produto cadastrarProduto(@RequestBody Produto produto) {
+        return this.service.incluir(produto);
     }
 
-    @PutMapping("/atualizar/{idProduto}")
-    public ResponseEntity<Object> atualizarProduto(@RequestBody Produto p) {
-
-        if (this.produtoService.atualizarProduto(p)) {
-            return new ResponseEntity<>(p, HttpStatus.OK);
-        } else {
-            return new ResponseEntity<>("Falha ao atualizar produto!", HttpStatus.BAD_REQUEST);
-        }
+    @PutMapping("/atualizar")
+    public ResponseEntity<Produto> atualizarProduto(@RequestBody Produto produto) {
+        return this.service.atualizar(produto);
     }
 
-    @DeleteMapping("/deletar/{idProduto}")
-    public ResponseEntity<Object> deletarProduto(@PathVariable int idProduto) {
-
-        if (this.produtoService.deletarProduto(idProduto)) {
-            return new ResponseEntity<>("Produto deletado!", HttpStatus.OK);
-        } else {
-            return new ResponseEntity<>("Falha ao deletar produto!", HttpStatus.BAD_REQUEST);
-        }
-    }
-
-    @PutMapping("/atualizar-estoque/{idProduto}")
-    public ResponseEntity<Object> aumentarEstoque(@PathVariable int idProduto,
+    @PutMapping("/atualizar-estoque/{id}")
+    public ResponseEntity<Produto> aumentarEstoque(@PathVariable int id,
                                                   @RequestParam int quantidade) {
-
-        if (this.produtoService.atualizarEstoqueProduto(idProduto, quantidade)) {
-            return new ResponseEntity<>("Estoque do produto atualizado!", HttpStatus.OK);
-        } else {
-            return new ResponseEntity<>("Falha ao atualizar o estoque do produto", HttpStatus.BAD_REQUEST);
-        }
+        return this.service.atualizarEstoque(id, quantidade);
     }
+
+    @DeleteMapping("/deletar/{id}")
+    public ResponseEntity<?> deletarProduto(@PathVariable int id) {
+        return this.service.deletar(id);
+    }
+
 }

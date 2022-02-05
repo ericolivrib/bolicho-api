@@ -13,44 +13,26 @@ import java.util.List;
 @RequestMapping("clientes")
 public class ClienteController {
 
-    private final ClienteService clienteService;
+    private final ClienteService service = new ClienteService();
 
-    public ClienteController() {
-        this.clienteService = new ClienteService();
-    }
-
-    @GetMapping("/")
+    @GetMapping
     public List<Cliente> getClientes() {
-        return this.clienteService.getClientes();
+        return this.service.buscar();
     }
 
     @PostMapping("/cadastrar")
-    public ResponseEntity<Object> cadastrarCliente(@RequestBody Cliente c) {
-
-        if (this.clienteService.cadastrarCliente(c)) {
-            return new ResponseEntity<>(c, HttpStatus.OK);
-        } else {
-            return new ResponseEntity<>("Falha ao cadastrar cliente!", HttpStatus.BAD_REQUEST);
-        }
+    @ResponseStatus(HttpStatus.CREATED)
+    public Cliente cadastrarCliente(@RequestBody Cliente cliente) {
+        return this.service.incluir(cliente);
     }
 
-    @PutMapping("/{idCliente}/atualizar")
-    public ResponseEntity<Object> atualizarCliente(@RequestBody Cliente c) {
-
-        if (this.clienteService.atualizarCliente(c)) {
-            return new ResponseEntity<>(c, HttpStatus.OK);
-        } else {
-            return new ResponseEntity<>("Falha ao atualizar cliente!", HttpStatus.BAD_REQUEST);
-        }
+    @PutMapping("/atualizar")
+    public ResponseEntity<Cliente> atualizarCliente(@RequestBody Cliente cliente) {
+        return this.service.atualizar(cliente);
     }
 
-    @DeleteMapping("/{idCliente}/deletar")
-    public ResponseEntity<Object> deletarCliente(@PathVariable int idCliente) {
-
-        if (this.clienteService.deletarCliente(idCliente)) {
-            return new ResponseEntity<>("Cliente deletado!", HttpStatus.OK);
-        } else {
-            return new ResponseEntity<>("Falha ao deletar cliente!", HttpStatus.BAD_REQUEST);
-        }
+    @DeleteMapping("/{id}/desativar")
+    public ResponseEntity<?> deletarCliente(@PathVariable int id) {
+        return this.service.deletar(id);
     }
 }
