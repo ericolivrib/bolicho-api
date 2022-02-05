@@ -14,11 +14,10 @@ public class UsuarioDAO {
     public Usuario buscar(Usuario usuario) {
 
         try (Connection connection = ConexaoDBUtil.getConnection()) {
-            String sql = "SELECT * FROM usuario WHERE email=? AND senha=?";
+            String sql = "SELECT * FROM usuario WHERE email=?";
 
             PreparedStatement statement = connection.prepareStatement(sql);
             statement.setString(1, usuario.getEmail());
-            statement.setString(2, usuario.getSenha());
             ResultSet result = statement.executeQuery();
 
             if (result.next()) {
