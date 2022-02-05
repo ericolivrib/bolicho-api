@@ -4,8 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 import lombok.Data;
 
-import java.math.BigDecimal;
-import java.time.LocalDate;
+import java.sql.Date;
 
 @Data
 @AllArgsConstructor
@@ -15,6 +14,6 @@ public class Item {
     private int id;
     private Produto produto;
     private double quantidade;
-    private BigDecimal subtotal;
-    private LocalDate dataValidade;
+    private double subtotal;
+    private Date dataValidade;
 }

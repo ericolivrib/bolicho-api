@@ -4,8 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 import lombok.Data;
 
-import java.math.BigDecimal;
-import java.time.LocalDate;
+import java.sql.Date;
 import java.util.List;
 
 @Data
@@ -16,10 +15,10 @@ public class Pedido {
     private int id;
     private Cliente cliente;
     private List<Item> itens;
-    private Endereco localEntrega;
-    private LocalDate dataPedido;
-    private LocalDate dataEntrega;
-    private LocalDate dataFinalizado;
-    private BigDecimal total;
+    private LocalEntrega localEntrega;
+    private Date dataPedido;
+    private Date dataEntrega;
+    private Date dataFinalizado;
+    private double total;
     private Status status;
 }

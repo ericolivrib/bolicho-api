@@ -7,7 +7,7 @@ import lombok.Data;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class Endereco {
+public class LocalEntrega {
 
     private int id;
     private String cep;
