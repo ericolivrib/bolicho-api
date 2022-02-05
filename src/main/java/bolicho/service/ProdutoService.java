@@ -28,7 +28,9 @@ public class ProdutoService {
         }
     }
 
-    public ResponseEntity<Produto> atualizarEstoque(int id, int quantidade) {
+    public ResponseEntity<Produto> atualizarEstoque(int id, double quantidade) {
+        // Criar lógica de conversão de valores inteiros da quantidade
+
         if (this.dao.atualizarEstoque(id, quantidade)) {
             return ResponseEntity.ok().build();
         } else {

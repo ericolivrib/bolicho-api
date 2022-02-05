@@ -8,7 +8,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.LocalDate;
+import java.sql.Date;
 import java.util.List;
 
 @RestController
@@ -29,14 +29,14 @@ public class PedidoController {
     }
 
     @DeleteMapping("/{id}/deletar")
-    public ResponseEntity<?> deletarPedido(@RequestParam int id) {
+    public ResponseEntity<?> deletarPedido(@PathVariable int id) {
         return this.service.deletar(id);
     }
 
     @PutMapping("/{id}/alterar-status")
     public ResponseEntity<Pedido> alterarStatus(@PathVariable int id,
                                                 @RequestParam String status,
-                                                @RequestParam String dataFinalizado) {
-        return this.service.alterarStatus(id, Status.valueOf(status), LocalDate.parse(dataFinalizado));
+                                                @RequestParam Date dataFinalizado) {
+        return this.service.alterarStatus(id, Status.valueOf(status), dataFinalizado);
     }
 }
