@@ -9,12 +9,10 @@ import bolicho.util.ConexaoDBUtil;
 
 public class ProdutoDAO {
 
-    public List<Produto> recuperar() {
-
+    public List<Produto> buscar() {
         List<Produto> produtos = new ArrayList<>();
 
         try (Connection connection = ConexaoDBUtil.getConnection()) {
-
             String sql = "SELECT * FROM produto";
             Statement statement = connection.createStatement();
             ResultSet result = statement.executeQuery(sql);
@@ -25,7 +23,7 @@ public class ProdutoDAO {
                         result.getString("descricao"),
                         result.getBigDecimal("preco_unitario"),
                         result.getString("unidade_medida"),
-                        result.getInt("qtd_estoque"),
+                        result.getDouble("qtd_estoque"),
                         result.getBoolean("arquivado")
                 );
 
@@ -39,18 +37,13 @@ public class ProdutoDAO {
         return produtos;
     }
 
-    public Produto recuperarPeloId(int id) {
-
-        Produto produto = new Produto();
+    public Produto buscarPorId(int id) {
+        Produto produto = null;
 
         try (Connection connection = ConexaoDBUtil.getConnection()) {
-
             String sql = "SELECT * FROM produto WHERE id=?";
-
             PreparedStatement statement = connection.prepareStatement(sql);
-
             statement.setInt(1, id);
-
             ResultSet result = statement.executeQuery();
 
             if (result.next()) {
@@ -59,11 +52,10 @@ public class ProdutoDAO {
                         result.getString("descricao"),
                         result.getBigDecimal("preco_unitario"),
                         result.getString("unidade_medida"),
-                        result.getInt("qtd_estoque"),
+                        result.getDouble("qtd_estoque"),
                         result.getBoolean("arquivado")
                 );
             }
-
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -71,32 +63,31 @@ public class ProdutoDAO {
         return produto;
     }
 
-    public boolean incluir(Produto produto) {
-
+    public Produto incluir(Produto produto) {
         try (Connection connection = ConexaoDBUtil.getConnection()) {
-
-            String sql = "INSERT INTO produto (descricao, preco_unitario, unidade_medida, arquivado) " +
-                    "VALUES (?, ?, ?, false)";
+            String sql = "INSERT INTO produto (descricao, preco_unitario, unidade_medida, quantidade, arquivado) " +
+                    "VALUES (?, ?, ?, ?, false)";
 
             PreparedStatement statement = connection.prepareStatement(sql);
-
             statement.setString(1, produto.getDescricao());
             statement.setBigDecimal(2, produto.getPrecoUnitario());
-            statement.setString(3, produto.getUnidadeMedida());
+            statement.setDouble(3, produto.getQtdEstoque());
+            statement.setString(4, produto.getUnidadeMedida());
 
             statement.executeUpdate();
-            return true;
 
+            if (statement.getUpdateCount() > 0) {
+                return produto;
+            }
         } catch (SQLException e) {
             e.printStackTrace();
-            return false;
         }
+
+        return null;
     }
 
     public boolean atualizar(Produto produto) {
-
         try (Connection connection = ConexaoDBUtil.getConnection()) {
-
             String sql = "UPDATE produto SET descricao=?, preco_unitario=?, unidade_medida=? WHERE id=?";
 
             PreparedStatement statement = connection.prepareStatement(sql);
@@ -107,49 +98,53 @@ public class ProdutoDAO {
             statement.setInt(4, produto.getId());
 
             statement.executeUpdate();
-            return true;
 
+            if (statement.getUpdateCount() > 0) {
+                return true;
+            }
         } catch (SQLException e) {
             e.printStackTrace();
-            return false;
         }
+
+        return false;
     }
 
-    public boolean atualizarEstoque(Produto produto) {
-
+    public boolean atualizarEstoque(int id, double quantidade) {
         try (Connection connection = ConexaoDBUtil.getConnection()) {
-
             String sql = "UPDATE produto SET qtd_estoque=? WHERE id=?";
 
             PreparedStatement statement = connection.prepareStatement(sql);
-
-            statement.setInt(1, produto.getQtdEstoque());
-            statement.setInt(2, produto.getId());
+            statement.setDouble(1, quantidade);
+            statement.setInt(2, id);
 
             statement.executeUpdate();
-            return true;
 
+            if (statement.getUpdateCount() > 0) {
+                return true;
+            }
         } catch (SQLException e) {
             e.printStackTrace();
-            return false;
         }
+
+        return false;
     }
 
     public boolean arquivar(int id) {
-
         try (Connection connection = ConexaoDBUtil.getConnection()) {
-
             String sql = "UPDATE produto SET arquivado=true WHERE id=?";
 
             PreparedStatement statement = connection.prepareStatement(sql);
             statement.setInt(1, id);
+
             statement.executeUpdate();
 
-            return true;
-
+            if (statement.getUpdateCount() > 0) {
+                return true;
+            }
         } catch (SQLException e) {
             e.printStackTrace();
-            return false;
         }
+
+        return false;
     }
 }
