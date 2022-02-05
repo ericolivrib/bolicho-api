@@ -21,5 +21,5 @@ public class Pedido {
     private LocalDate dataEntrega;
     private LocalDate dataFinalizado;
     private BigDecimal total;
-    private String status;
+    private Status status;
 }
