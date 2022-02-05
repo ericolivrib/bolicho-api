@@ -21,7 +21,7 @@ public class ProdutoDAO {
                 Produto produto = new Produto(
                         result.getInt("id"),
                         result.getString("descricao"),
-                        result.getBigDecimal("preco_unitario"),
+                        result.getDouble("preco_unitario"),
                         result.getString("unidade_medida"),
                         result.getDouble("qtd_estoque"),
                         result.getBoolean("arquivado")
@@ -50,7 +50,7 @@ public class ProdutoDAO {
                 produto = new Produto(
                         result.getInt("id"),
                         result.getString("descricao"),
-                        result.getBigDecimal("preco_unitario"),
+                        result.getDouble("preco_unitario"),
                         result.getString("unidade_medida"),
                         result.getDouble("qtd_estoque"),
                         result.getBoolean("arquivado")
@@ -70,7 +70,7 @@ public class ProdutoDAO {
 
             PreparedStatement statement = connection.prepareStatement(sql);
             statement.setString(1, produto.getDescricao());
-            statement.setBigDecimal(2, produto.getPrecoUnitario());
+            statement.setDouble(2, produto.getPrecoUnitario());
             statement.setDouble(3, produto.getQtdEstoque());
             statement.setString(4, produto.getUnidadeMedida());
 
@@ -93,7 +93,7 @@ public class ProdutoDAO {
             PreparedStatement statement = connection.prepareStatement(sql);
 
             statement.setString(1, produto.getDescricao());
-            statement.setBigDecimal(2, produto.getPrecoUnitario());
+            statement.setDouble(2, produto.getPrecoUnitario());
             statement.setString(3, produto.getUnidadeMedida());
             statement.setInt(4, produto.getId());
 

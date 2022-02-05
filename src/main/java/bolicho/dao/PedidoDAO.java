@@ -4,7 +4,6 @@ import bolicho.model.*;
 import bolicho.util.ConexaoDBUtil;
 
 import java.sql.*;
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -25,15 +24,15 @@ public class PedidoDAO {
                         new ClienteDAO().buscarPorId(result.getInt("cliente_id")),
                         this.buscarItensPorIdPedido(result.getInt("id")),
                         this.buscarLocalEntrega(result.getInt("endereco_id")),
-                        result.getDate("data_pedido").toLocalDate(),
-                        result.getDate("data_entrega").toLocalDate(),
+                        result.getDate("data_pedido"),
+                        result.getDate("data_entrega"),
                         null,
-                        result.getBigDecimal("total"),
+                        result.getDouble("total"),
                         Status.valueOf(result.getString("status"))
                 );
 
                 if (result.getDate("data_finalizado") != null) {
-                    p.setDataFinalizado(result.getDate("data_finalizado").toLocalDate());
+                    p.setDataFinalizado(result.getDate("data_finalizado"));
                 }
 
                 pedidos.add(p);
@@ -64,8 +63,8 @@ public class PedidoDAO {
                         result.getInt("id"),
                         new ProdutoDAO().buscarPorId(result.getInt("produto_id")),
                         result.getDouble("quantidade"),
-                        result.getBigDecimal("subtotal"),
-                        result.getDate("data_validade").toLocalDate()
+                        result.getDouble("subtotal"),
+                        result.getDate("data_validade")
                 );
 
                 itens.add(i);
@@ -90,8 +89,8 @@ public class PedidoDAO {
                         result.getInt("id"),
                         new ProdutoDAO().buscarPorId(result.getInt("produto_id")),
                         result.getDouble("quantidade"),
-                        result.getBigDecimal("subtotal"),
-                        result.getDate("data_validade").toLocalDate()
+                        result.getDouble("subtotal"),
+                        result.getDate("data_validade")
                 );
             }
 
@@ -102,7 +101,7 @@ public class PedidoDAO {
         return null;
     }
 
-    public Endereco buscarLocalEntrega(int id) {
+    public LocalEntrega buscarLocalEntrega(int id) {
         try (Connection connection = ConexaoDBUtil.getConnection()) {
             String sql = "SELECT * FROM endereco WHERE id=?";
 
@@ -112,7 +111,7 @@ public class PedidoDAO {
             ResultSet result = statement.executeQuery();
 
             if (result.next()) {
-                return new Endereco(
+                return new LocalEntrega(
                         result.getInt("id"),
                         result.getString("cep"),
                         result.getString("bairro"),
@@ -132,7 +131,7 @@ public class PedidoDAO {
 
     public Pedido incluir(Pedido pedido) {
 
-        Endereco localEntrega = pedido.getLocalEntrega();
+        LocalEntrega localEntrega = pedido.getLocalEntrega();
         localEntrega.setId(this.incluirLocalEntrega(localEntrega));
 
         if (localEntrega.getId() != 0) {
@@ -149,9 +148,9 @@ public class PedidoDAO {
 
                 statement.setInt(1, pedido.getCliente().getId());
                 statement.setInt(2, localEntrega.getId());
-                statement.setDate(3, Date.valueOf(pedido.getDataPedido()));
-                statement.setDate(4, Date.valueOf(pedido.getDataEntrega()));
-                statement.setBigDecimal(5, pedido.getTotal());
+                statement.setDate(3, pedido.getDataPedido());
+                statement.setDate(4, pedido.getDataEntrega());
+                statement.setDouble(5, pedido.getTotal());
 
                 statement.executeUpdate();
                 ResultSet result = statement.getGeneratedKeys();
@@ -184,9 +183,9 @@ public class PedidoDAO {
 
                 statement.setInt(1, item.getProduto().getId());
                 statement.setInt(2, idPedido);
-                statement.setBigDecimal(3, item.getSubtotal());
+                statement.setDouble(3, item.getSubtotal());
                 statement.setDouble(4, item.getQuantidade());
-                statement.setDate(5, Date.valueOf(item.getDataValidade()));
+                statement.setDate(5, item.getDataValidade());
 
                 statement.execute();
             }
@@ -198,7 +197,7 @@ public class PedidoDAO {
 
     }
 
-    public int incluirLocalEntrega(Endereco endereco) {
+    public int incluirLocalEntrega(LocalEntrega localEntrega) {
         try (Connection connection = ConexaoDBUtil.getConnection()) {
 
             connection.setAutoCommit(false);
@@ -209,12 +208,12 @@ public class PedidoDAO {
             PreparedStatement statement = connection.prepareStatement(sql,
                     PreparedStatement.RETURN_GENERATED_KEYS);
 
-            statement.setString(1, endereco.getCep());
-            statement.setString(2, endereco.getBairro());
-            statement.setString(3, endereco.getLogradouro());
-            statement.setInt(4, endereco.getNumero());
-            statement.setString(5, endereco.getComplemento());
-            statement.setString(6, endereco.getPontoReferencia());
+            statement.setString(1, localEntrega.getCep());
+            statement.setString(2, localEntrega.getBairro());
+            statement.setString(3, localEntrega.getLogradouro());
+            statement.setInt(4, localEntrega.getNumero());
+            statement.setString(5, localEntrega.getComplemento());
+            statement.setString(6, localEntrega.getPontoReferencia());
 
             statement.executeUpdate();
             ResultSet result  = statement.getGeneratedKeys();
@@ -297,9 +296,9 @@ public class PedidoDAO {
         return false;
     }
 
-    public boolean deletarLocalEntrega(int id) {
-        try (Connection connection = ConexaoDBUtil.getConnection()) {
+    public void deletarLocalEntrega(int id) {
 
+        try (Connection connection = ConexaoDBUtil.getConnection()) {
             connection.setAutoCommit(false);
 
             String sql = "DELETE FROM endereco WHERE id=?";
@@ -310,29 +309,26 @@ public class PedidoDAO {
 
             if (statement.getUpdateCount() > 0) {
                 connection.commit();
-                return true;
             }
-
         } catch (SQLException e) {
             e.printStackTrace();
         }
 
-        return false;
     }
 
-    public boolean atualizarStatus(int id, Status status, LocalDate dataFinalizado) {
+    public boolean atualizarStatus(int id, Status status, Date dataFinalizado) {
 
         try (Connection connection = ConexaoDBUtil.getConnection()) {
 
             connection.setAutoCommit(false);
 
-            if (pedido.getStatus().getStatus().equals("Finalizado")) {
+            if (status.getStatus().equals("Finalizado")) {
                 String sql = "UPDATE pedido SET status=?, data_finalizado=? WHERE id=?";
                 PreparedStatement statement = connection.prepareStatement(sql);
 
                 statement.setString(1, "Finalizado");
-                statement.setDate(2, Date.valueOf(pedido.getDataFinalizado()));
-                statement.setInt(3, pedido.getId());
+                statement.setDate(2, dataFinalizado);
+                statement.setInt(3, id);
                 statement.executeUpdate();
 
                 if (statement.getUpdateCount() > 0) {
@@ -343,8 +339,8 @@ public class PedidoDAO {
                 String sql = "UPDATE pedido SET status=? WHERE id=?";
                 PreparedStatement statement = connection.prepareStatement(sql);
 
-                statement.setString(1, pedido.getStatus().getStatus());
-                statement.setInt(2, pedido.getId());
+                statement.setString(1, status.getStatus());
+                statement.setInt(2, id);
                 statement.executeUpdate();
 
                 if (statement.getUpdateCount() > 0) {
