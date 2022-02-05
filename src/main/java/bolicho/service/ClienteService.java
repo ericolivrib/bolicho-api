@@ -2,6 +2,7 @@ package bolicho.service;
 
 import bolicho.dao.ClienteDAO;
 import bolicho.model.Cliente;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -9,25 +10,29 @@ import java.util.List;
 @Service
 public class ClienteService {
 
-    private final ClienteDAO clienteDAO;
+    private final ClienteDAO dao = new ClienteDAO();
 
-    public ClienteService() {
-        this.clienteDAO = new ClienteDAO();
+    public List<Cliente> buscar() {
+        return this.dao.buscar();
     }
 
-    public List<Cliente> getClientes() {
-        return this.clienteDAO.recuperar();
+    public Cliente incluir(Cliente cliente) {
+        return this.dao.incluir(cliente);
     }
 
-    public boolean cadastrarCliente(Cliente c) {
-        return this.clienteDAO.incluir(c);
+    public ResponseEntity<Cliente> atualizar(Cliente cliente) {
+        if (this.dao.atualizar(cliente)) {
+            return ResponseEntity.ok().body(cliente);
+        } else {
+            return ResponseEntity.notFound().build();
+        }
     }
 
-    public boolean atualizarCliente(Cliente c) {
-        return this.clienteDAO.atualizar(c);
-    }
-
-    public boolean deletarCliente(int id) {
-        return this.clienteDAO.desativar(id);
+    public ResponseEntity<?> deletar(int id) {
+        if (this.dao.desativar(id)) {
+            return ResponseEntity.ok().build();
+        } else {
+            return ResponseEntity.notFound().build();
+        }
     }
 }

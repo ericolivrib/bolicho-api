@@ -2,6 +2,7 @@ package bolicho.service;
 
 import bolicho.model.Produto;
 import bolicho.dao.ProdutoDAO;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -9,33 +10,37 @@ import java.util.List;
 @Service
 public class ProdutoService {
 
-    private final ProdutoDAO produtoDAO;
+    private final ProdutoDAO dao = new ProdutoDAO();
 
-    public ProdutoService() {
-        this.produtoDAO = new ProdutoDAO();
+    public List<Produto> buscar() {
+        return this.dao.buscar();
     }
 
-    public List<Produto> getProdutos() {
-        return this.produtoDAO.recuperar();
+    public Produto incluir(Produto produto) {
+        return this.dao.incluir(produto);
     }
 
-    public boolean cadastrarProduto(Produto p) {
-        return this.produtoDAO.incluir(p);
+    public ResponseEntity<Produto> atualizar(Produto produto) {
+        if (this.dao.atualizar(produto)) {
+            return ResponseEntity.ok().body(produto);
+        } else {
+            return ResponseEntity.notFound().build();
+        }
     }
 
-    public boolean atualizarProduto(Produto p) {
-        return this.produtoDAO.atualizar(p);
+    public ResponseEntity<Produto> atualizarEstoque(int id, int quantidade) {
+        if (this.dao.atualizarEstoque(id, quantidade)) {
+            return ResponseEntity.ok().build();
+        } else {
+            return ResponseEntity.notFound().build();
+        }
     }
 
-    public boolean atualizarEstoqueProduto(int id, int qtd) {
-        Produto p = new Produto();
-        p.setId(id);
-        p.setQtdEstoque(qtd);
-
-        return this.produtoDAO.atualizarEstoque(p);
-    }
-
-    public boolean deletarProduto(int id) {
-        return this.produtoDAO.arquivar(id);
+    public ResponseEntity<?> deletar(int id) {
+        if (this.dao.arquivar(id)) {
+            return ResponseEntity.ok().build();
+        } else {
+            return ResponseEntity.notFound().build();
+        }
     }
 }
