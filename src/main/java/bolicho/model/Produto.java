@@ -15,6 +15,6 @@ public class Produto {
     private String descricao;
     private BigDecimal precoUnitario;
     private String unidadeMedida;
-    private int qtdEstoque;
+    private double qtdEstoque;
     private boolean arquivado;
 }
