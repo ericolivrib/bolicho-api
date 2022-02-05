@@ -14,7 +14,7 @@ public class Item {
 
     private int id;
     private Produto produto;
-    private int quantidade;
+    private double quantidade;
     private BigDecimal subtotal;
     private LocalDate dataValidade;
 }
