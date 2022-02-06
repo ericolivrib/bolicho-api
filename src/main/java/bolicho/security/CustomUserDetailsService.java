@@ -13,7 +13,7 @@ public class CustomUserDetailsService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-        Usuario usuario = new UsuarioDAO().buscar(new Usuario(email, null));
+        Usuario usuario = new UsuarioDAO().buscar(new Usuario(email, null, null));
 
         if (usuario == null) {
             throw new UsernameNotFoundException("Credenciais inválidas");
