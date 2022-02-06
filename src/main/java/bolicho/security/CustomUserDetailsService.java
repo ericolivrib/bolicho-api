@@ -18,7 +18,7 @@ public class CustomUserDetailsService implements UserDetailsService {
         if (usuario == null) {
             throw new UsernameNotFoundException("Credenciais inválidas");
         } else {
-            return User.withUsername(usuario.getEmail()).password(usuario.getSenha()).authorities("USER").build();
+            return User.withUsername(usuario.getEmail()).password(usuario.getSenha()).authorities("ADMIN").build();
         }
     }
 }
