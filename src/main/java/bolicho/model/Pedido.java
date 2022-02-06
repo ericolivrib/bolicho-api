@@ -20,5 +20,5 @@ public class Pedido {
     private Date dataEntrega;
     private Date dataFinalizado;
     private double total;
-    private Status status;
+    private String status;
 }

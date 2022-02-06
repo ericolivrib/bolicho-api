@@ -28,7 +28,7 @@ public class PedidoDAO {
                         result.getDate("data_entrega"),
                         null,
                         result.getDouble("total"),
-                        Status.valueOf(result.getString("status"))
+                        result.getString("status")
                 );
 
                 if (result.getDate("data_finalizado") != null) {
@@ -316,13 +316,13 @@ public class PedidoDAO {
 
     }
 
-    public boolean atualizarStatus(int id, Status status, Date dataFinalizado) {
+    public boolean atualizarStatus(int id, String status, Date dataFinalizado) {
 
         try (Connection connection = ConexaoDBUtil.getConnection()) {
 
             connection.setAutoCommit(false);
 
-            if (status.getStatus().equals("Finalizado")) {
+            if (status.equals("Finalizado")) {
                 String sql = "UPDATE pedido SET status=?, data_finalizado=? WHERE id=?";
                 PreparedStatement statement = connection.prepareStatement(sql);
 
@@ -339,7 +339,7 @@ public class PedidoDAO {
                 String sql = "UPDATE pedido SET status=? WHERE id=?";
                 PreparedStatement statement = connection.prepareStatement(sql);
 
-                statement.setString(1, status.getStatus());
+                statement.setString(1, status);
                 statement.setInt(2, id);
                 statement.executeUpdate();
 

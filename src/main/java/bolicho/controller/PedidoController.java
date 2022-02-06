@@ -1,6 +1,5 @@
 package bolicho.controller;
 
-import bolicho.model.Status;
 import bolicho.service.PedidoService;
 import bolicho.model.Pedido;
 
@@ -37,6 +36,6 @@ public class PedidoController {
     public ResponseEntity<Pedido> alterarStatus(@PathVariable int id,
                                                 @RequestParam String status,
                                                 @RequestParam Date dataFinalizado) {
-        return this.service.alterarStatus(id, Status.valueOf(status), dataFinalizado);
+        return this.service.alterarStatus(id, status, dataFinalizado);
     }
 }
