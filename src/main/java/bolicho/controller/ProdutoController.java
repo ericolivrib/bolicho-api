@@ -13,8 +13,9 @@ import java.util.List;
 @RequestMapping("produtos")
 public class ProdutoController {
 
-    private final ProdutoService service = new ProdutoService();;
+    private final ProdutoService service = new ProdutoService();
 
+    @CrossOrigin(origins = "*")
     @GetMapping
     public List<Produto> getProdutos() {
         return this.service.buscar();
@@ -32,13 +33,13 @@ public class ProdutoController {
     }
 
     @PutMapping("/atualizar-estoque/{id}")
-    public ResponseEntity<Produto> aumentarEstoque(@PathVariable int id,
-                                                  @RequestParam int quantidade) {
-        return this.service.atualizarEstoque(id, quantidade);
+    public ResponseEntity<Produto> aumentarEstoque(@PathVariable int id, @RequestBody Produto produto) {
+        System.out.println(produto.getQtdEstoque());
+        return this.service.atualizarEstoque(id, produto.getQtdEstoque());
     }
 
-    @DeleteMapping("/deletar/{id}")
-    public ResponseEntity<?> deletarProduto(@PathVariable int id) {
+    @DeleteMapping("/desativar/{id}")
+    public ResponseEntity<?> desativarProduto(@PathVariable int id) {
         return this.service.deletar(id);
     }
 

@@ -13,7 +13,7 @@ public class ClienteDAO {
         List<Cliente> clientes = new ArrayList<>();
 
         try (Connection connection = ConexaoDBUtil.getConnection()) {
-            String sql = "SELECT * FROM cliente";
+            String sql = "SELECT * FROM cliente WHERE ativo=true";
             Statement statement = connection.createStatement();
             ResultSet result = statement.executeQuery(sql);
 
@@ -115,11 +115,16 @@ public class ClienteDAO {
             PreparedStatement statement = connection.prepareStatement(sql);
             statement.setInt(1, id);
 
-            return statement.execute();
+            statement.executeUpdate();
 
+            if (statement.getUpdateCount() > 0) {
+                return true;
+            }
         } catch (SQLException e) {
             e.printStackTrace();
             return false;
         }
+
+        return false;
     }
 }

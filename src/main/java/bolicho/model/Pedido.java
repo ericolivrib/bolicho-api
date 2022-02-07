@@ -18,7 +18,6 @@ public class Pedido {
     private LocalEntrega localEntrega;
     private Date dataPedido;
     private Date dataEntrega;
-    private Date dataFinalizado;
     private double total;
     private String status;
 }

@@ -11,5 +11,6 @@ public class Usuario {
 
     private String email;
     private String senha;
+    private String permissao;
     private String token;
 }

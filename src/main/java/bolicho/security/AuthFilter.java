@@ -42,9 +42,11 @@ public class AuthFilter extends OncePerRequestFilter {
                     }
                 }
             }
+
+            filterChain.doFilter(request, response);
+
         } catch (ExpiredJwtException e) {
             response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Token expirado");
         }
-        filterChain.doFilter(request, response);
     }
 }

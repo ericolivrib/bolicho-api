@@ -24,18 +24,17 @@ public class PedidoController {
     @PostMapping("/cadastrar")
     @ResponseStatus(HttpStatus.CREATED)
     public Pedido cadastrarPedido(@RequestBody Pedido pedido) {
+        System.out.println(pedido.toString());
         return this.service.incluir(pedido);
     }
 
-    @DeleteMapping("/{id}/deletar")
-    public ResponseEntity<?> deletarPedido(@PathVariable int id) {
-        return this.service.deletar(id);
+    @PutMapping("/alterar-status/{id}")
+    public ResponseEntity<Pedido> alterarStatus(@PathVariable int id, @RequestBody Pedido pedido) {
+        return this.service.alterarStatus(id, pedido.getStatus());
     }
 
-    @PutMapping("/{id}/alterar-status")
-    public ResponseEntity<Pedido> alterarStatus(@PathVariable int id,
-                                                @RequestParam String status,
-                                                @RequestParam Date dataFinalizado) {
-        return this.service.alterarStatus(id, status, dataFinalizado);
+    @DeleteMapping("/deletar/{id}")
+    public ResponseEntity<?> deletarPedido(@PathVariable int id) {
+        return this.service.deletar(id);
     }
 }

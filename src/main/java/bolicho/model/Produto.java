@@ -12,7 +12,7 @@ public class Produto {
     private int id;
     private String descricao;
     private double precoUnitario;
-    private String unidadeMedida;
     private double qtdEstoque;
+    private String unidadeMedida;
     private boolean arquivado;
 }

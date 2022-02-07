@@ -16,6 +16,10 @@ public class ClienteService {
         return this.dao.buscar();
     }
 
+    public Cliente buscarCurso(int id) {
+        return this.dao.buscarPorId(id);
+    }
+
     public Cliente incluir(Cliente cliente) {
         return this.dao.incluir(cliente);
     }

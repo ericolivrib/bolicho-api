@@ -13,12 +13,12 @@ import io.jsonwebtoken.SignatureAlgorithm;
 
 public class JWTUtil {
 
-    public static final long TEMPO_VIDA = Duration.ofSeconds(40).toMillis();
+    public static final long TEMPO_VIDA = Duration.ofSeconds(3600).toMillis();
 
     public String gerarToken(Usuario usuario) {
         final Map<String, Object> claims = new HashMap<>();
         claims.put("sub", usuario.getEmail());
-        claims.put("permissions", "ADMIN");
+        claims.put("permissions", usuario.getPermissao());
 
         return Jwts.builder()
                 .setClaims(claims)
@@ -35,7 +35,10 @@ public class JWTUtil {
     }
 
     public boolean isExpiredToken(String token) {
-        return this.parseToken(token).getExpiration().before(new Date());
+        if (token != null) {
+            return this.parseToken(token).getExpiration().before(new Date());
+        }
+        return false;
     }
 
     private Claims parseToken(String token) {

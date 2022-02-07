@@ -20,6 +20,11 @@ public class ClienteController {
         return this.service.buscar();
     }
 
+    @GetMapping("/{id}")
+    public Cliente getCliente(@PathVariable int id) {
+        return this.service.buscarCurso(id);
+    }
+
     @PostMapping("/cadastrar")
     @ResponseStatus(HttpStatus.CREATED)
     public Cliente cadastrarCliente(@RequestBody Cliente cliente) {
@@ -31,7 +36,7 @@ public class ClienteController {
         return this.service.atualizar(cliente);
     }
 
-    @DeleteMapping("/{id}/desativar")
+    @DeleteMapping("/desativar/{id}")
     public ResponseEntity<?> deletarCliente(@PathVariable int id) {
         return this.service.deletar(id);
     }

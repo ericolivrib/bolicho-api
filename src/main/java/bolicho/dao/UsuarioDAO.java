@@ -23,6 +23,7 @@ public class UsuarioDAO {
             if (result.next()) {
                 return new Usuario(result.getString("email"),
                         new BCryptPasswordEncoder().encode(result.getString("senha")),
+                        result.getString("permissao"),
                         null);
             }
         } catch (SQLException e) {

@@ -13,7 +13,7 @@ public class ProdutoDAO {
         List<Produto> produtos = new ArrayList<>();
 
         try (Connection connection = ConexaoDBUtil.getConnection()) {
-            String sql = "SELECT * FROM produto";
+            String sql = "SELECT * FROM produto WHERE arquivado=false";
             Statement statement = connection.createStatement();
             ResultSet result = statement.executeQuery(sql);
 
@@ -22,8 +22,8 @@ public class ProdutoDAO {
                         result.getInt("id"),
                         result.getString("descricao"),
                         result.getDouble("preco_unitario"),
-                        result.getString("unidade_medida"),
                         result.getDouble("qtd_estoque"),
+                        result.getString("unidade_medida"),
                         result.getBoolean("arquivado")
                 );
 
@@ -51,8 +51,8 @@ public class ProdutoDAO {
                         result.getInt("id"),
                         result.getString("descricao"),
                         result.getDouble("preco_unitario"),
-                        result.getString("unidade_medida"),
                         result.getDouble("qtd_estoque"),
+                        result.getString("unidade_medida"),
                         result.getBoolean("arquivado")
                 );
             }
@@ -65,14 +65,14 @@ public class ProdutoDAO {
 
     public Produto incluir(Produto produto) {
         try (Connection connection = ConexaoDBUtil.getConnection()) {
-            String sql = "INSERT INTO produto (descricao, preco_unitario, unidade_medida, quantidade, arquivado) " +
+            String sql = "INSERT INTO produto (descricao, preco_unitario, unidade_medida, qtd_estoque, arquivado) " +
                     "VALUES (?, ?, ?, ?, false)";
 
             PreparedStatement statement = connection.prepareStatement(sql);
             statement.setString(1, produto.getDescricao());
             statement.setDouble(2, produto.getPrecoUnitario());
-            statement.setDouble(3, produto.getQtdEstoque());
-            statement.setString(4, produto.getUnidadeMedida());
+            statement.setString(3, produto.getUnidadeMedida());
+            statement.setDouble(4, produto.getQtdEstoque());
 
             statement.executeUpdate();
 
